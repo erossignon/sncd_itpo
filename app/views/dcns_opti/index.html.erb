@@ -1,0 +1,40 @@
+<h2>DcnsOpti#index</h2>
+Hello World<br/>
+
+<%
+
+     # update all feature level 3
+     features3 = Feature.all_by_level(3)
+     features3.each do |feat|
+       Feature.update_feature(feat)
+     end
+%>
+  <table class="list issues">
+    <thead>
+      <th>id</th><th>Subject</th><th>done ratio</th><th>actual size</th><th>estimated_size</th></thead>
+<%   # now on feature level 2
+     current_version = nil
+     features2 = Feature.all_by_level(2).sort_by { |m| m.fixed_version }
+
+     features2.each do |feat|
+       if  !(feat.fixed_version.name == "Sprint Va+" or  feat.fixed_version.name == "Hors Va Va+") then
+         Feature.update_feature(feat)
+         if feat.fixed_version != current_version
+           current_version = feat.fixed_version
+           sprint_duration = (current_version.sprint_start_date - current_version.effective_date).to_i # in days
+
+         end
+%>
+<tr <%= cycle('odd', 'even') %> <%= feat.css_classes %> >
+
+  <td><%= link_to feat.id, :controller => 'issues', :action => 'show', :id => feat %></td>
+  <td><%= feat.subject %></td>
+  <td><%= feat.done_ratio %></td>
+  <td><%= feat.actualsize %></td>
+  <td><%= feat.featuresize %></td>
+  <td><%= feat.fixed_version.name %></td>
+</tr>
+<%  end
+  end
+%>
+</table>
