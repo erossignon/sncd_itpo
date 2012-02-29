@@ -1,8 +1,9 @@
 require 'fileutils'
 require 'benchmark'
 
-decimal_separator = ","
+
 def f(value)
+   decimal_separator = ","
    value.to_s.gsub('.', decimal_separator)
 end
 
@@ -22,8 +23,19 @@ end
 
 def update_feature(feat)
 
+
+  # update status on attached user stories
+  feat.userstories.each do |us|
+    if us.done_ratio == 100 and !us.closed then
+      puts "Closing User story #{us.id} #{us.subject}"
+      us.status = $closed_status
+      us.save!
+    end
+  end
+
   feat.reload # for some reason, needed
   actual_done = feat.calculated_percent_done
+
   if actual_done != feat.done_ratio then
       puts " Updating feature #{feat.id} #{feat.spec} advancement from #{feat.done_ratio} to #{actual_done}"
       feat.done_ratio = actual_done
@@ -35,6 +47,7 @@ def update_feature(feat)
       end
       feat.save!
   end
+
   if ( feat.done_ratio == 100  and !feat.closed?) then
      feat.status= $closed_status
      feat.done_ratio = 100
@@ -90,7 +103,7 @@ end
 
 
 def check3()
- puts "check3 : tests les features niveau 3 qui auraient plusieurs features n 2"
+ puts "# check3 : tests les features niveau 3 qui auraient plusieurs features n 2"
  features3 = Feature.all_by_level(3)
  features3.each do |f|
     sf = f.sub_features
@@ -101,6 +114,31 @@ def check3()
  end
  puts "check3 : done..."
 end
+
+
+def check4()
+  puts "# check4: trouve les anomalies dans l'avancement des users stories"
+  user_stories = UserStory.all()
+  user_stories.each do |us|
+    if us.done_ratio== 100 and us.closed? then
+      puts "  completed user story #{us.id} #{us.subject} is not closed "
+    end
+  end
+  puts "check4 : done..."
+end
+
+def check5()
+   puts "# check5: check feature that do not have any user story but are marked as completed or in progress"
+   features2 = Feature.all_by_level(2)
+   features2.each do |f|
+       if (f.userstories.count == 0 and f.sub_features.count == 0 )and ( f.done_ratio != 0 or f.status != $nouveau_status ) then
+           puts  "   feature #{f.id} status seems to be wrong, please check"
+           puts f
+       end
+   end
+   puts "check5 : done..."
+end
+
 
 # Recherche d'anomalies
 # rechercher les users stories qui sont liées à une feature n°3 mais aussi à sa Feature parente
@@ -191,6 +229,7 @@ def print_feature_collection(features,title)
   end
 
 end
+
 def printfeatures()
   update_features
   features = Feature.all_by_level(2).sort_by do  |f|
@@ -229,11 +268,11 @@ def printfeatures()
 
   s = Stat.find_or_create_by_date 0.days.ago.beginning_of_day
   # find(:all, :condition => { 'date=?' => 0.days.ago} )
-  s.done       = feature_done.sum { |f| f.featuresize }
-  s.inprogress = feature_inprogress.sum { |f| f.featuresize }
+  s.done            = feature_done.sum { |f| f.featuresize }
+  s.inprogress      = feature_inprogress.sum { |f| f.featuresize }
   s.inprogress_done = sum_estimate_done
-  s.todo       = feature_todo.sum { |f| f.featuresize }
-  s.bonus      = feature_outofscope.sum { |f| f.featuresize }
+  s.todo            = feature_todo.sum { |f| f.featuresize }
+  s.bonus           = feature_outofscope.sum { |f| f.featuresize }
 
   s.todo_feature_count            =  feature_todo.count
   s.inprogress_feature_count      =  feature_inprogress.count
@@ -247,8 +286,9 @@ def printfeatures()
   print_feature_collection(feature_todo, "A Faire")
 end
 
-def dumpcvs()
+def dumpcsv()
 
+  encoding = "ISO-8859-1"
    # export = FCSV.generate(:col_sep => l(:general_csv_separator)) do |csv|
    # end
 
@@ -257,10 +297,10 @@ def dumpcvs()
      [   -f.calculated_percent_done ,  f.fixed_version.effective_date, f.spec ]
    }
    puts "redmine;spec;level;feature size;actual size;%done CAl;%done set;subject"
-   features.each do |f|
+   features.each do |feat|
       # redmine ; id ; niveau
-      puts "#{f.id};\"#{f.spec}\";#{f.level};#{f.featuresize};"     \
-           "#{f.actualsize};#{f.calculated_percent_done};#{f.done_ratio};\"#{shorten(f.subject,7)}\";\"#{f.fixed_version.name}\""
+      puts "#{feat.id};\"#{feat.spec}\";#{feat.level};#{f(feat.featuresize)};"     \
+           "#{feat.actualsize};#{feat.calculated_percent_done};#{feat.done_ratio};\"#{Redmine::CodesetUtil.from_utf8(shorten(feat.subject,12),encoding)}\";\"#{feat.fixed_version.name}\""
    end
 end
 
@@ -312,9 +352,11 @@ namespace :dcns do
      end
      desc "Effectue des tests d'intégrité"
      task :check => :environment do |t|
-          check1
-          check2
-          check3
+       check1
+       check2
+       check3
+       check4
+       check5
      end
      desc "Sort les statistiques d'avancement d'un un fichier CVS"
      task :dumpstat => :environment do |t|
@@ -322,7 +364,7 @@ namespace :dcns do
        puts "             Dump Statistics"
        puts "====================================================="
        puts t
-       dumpcvs
+       dumpcsv
      end
 
     desc "dump des features"
@@ -340,7 +382,7 @@ namespace :dcns do
     desc "Dump Cumulative flow data"
     task :dumpCFD =>  :environment do |t|
       puts "date;todo;inprogress;inprogress_done;done;todo_feature_count;inprogress_feature_count;done_feature_count;bonus_feature_count"
-      stats = Stat.all().sort_by { |s| s.date }
+      stats = Stat.all(:order => "date ASC")
       stats.each do |s|
         puts "#{s.date};#{f(s.todo)};#{f(s.inprogress)};#{f(s.inprogress_done)};#{f(s.done)};"\
              "#{f(s.todo_feature_count)};#{f(s.inprogress_feature_count)};#{f(s.done_feature_count)};#{f(s.bonus_feature_count)}"

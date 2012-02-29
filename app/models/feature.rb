@@ -2,7 +2,6 @@
 
 
 $feature_tracker   = Tracker.find_by_name("Feature")
-$userstory_tracker = Tracker.find_by_name("user story")
 $nouveau_status    = IssueStatus.find_by_name("Nouveau")
 $encours_status    = IssueStatus.find_by_name("En Cours")
 $closed_status     = IssueStatus.find_by_name("Terminé")
@@ -13,7 +12,8 @@ $closed_status     = IssueStatus.find_by_name("Terminé")
 
      def Feature.all_by_level(level)
          r = []
-         features = f = Issue.find(:all,:conditions => [ "tracker_id = ?",$feature_tracker.id]); true
+         features = f = Issue.find(:all,:conditions => [ "tracker_id = ?",$feature_tracker.id],
+                            :include => [ :tracker , :fixed_version,:status ,:relations_from , :relations_to ]); true
          features.each do |issue|
            feature = issue.becomes(Feature)
            if feature.level == level then
@@ -155,12 +155,12 @@ $closed_status     = IssueStatus.find_by_name("Terminé")
        if actual_done != feat.done_ratio then
           puts "Updating feature #{feat.id} #{feat.spec} advancement from #{feat.done_ratio} to #{actual_done}"
           feat.done_ratio = actual_done
-          #feat.save(true)
+          feat.save(true)
        end
        if ( feat.done_ratio == 100  and !feat.closed?) then
           feat.status= $closed_status
           feat.done_ratio = 100
-          #feat.save()
+          feat.save()
           puts "     closing feature #{feat.id} #{feat.spec} #{feat.valid?}"
       end
      end

@@ -1,10 +1,12 @@
-require "issue"
-require 'tracker'
+#require "issue"
+#require 'tracker'
+
+$userstory_tracker = Tracker.find_by_name("user story")
 class UserStory < Issue
   
   def UserStory.all()
        r = []
-       features = f = Issue.find(:all,:conditions => [ "tracker_id = ?",$userstory_tracker.id]); 
+       features  = Issue.find(:all,:conditions => [ "tracker_id = ?",$userstory_tracker.id])
        features.each do |issue|
          feature = issue.becomes(UserStory)
        end
