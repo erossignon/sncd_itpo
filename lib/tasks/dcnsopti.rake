@@ -26,7 +26,7 @@ def update_feature(feat)
 
   # update status on attached user stories
   feat.userstories.each do |us|
-    if us.done_ratio == 100 and !us.closed then
+    if us.done_ratio == 100 and !us.closed? then
       puts "Closing User story #{us.id} #{us.subject}"
       us.status = $closed_status
       us.save!

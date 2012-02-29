@@ -2,6 +2,7 @@
 
 
 $feature_tracker   = Tracker.find_by_name("Feature")
+$userstory_tracker = Tracker.find_by_name("user story")
 $nouveau_status    = IssueStatus.find_by_name("Nouveau")
 $encours_status    = IssueStatus.find_by_name("En Cours")
 $closed_status     = IssueStatus.find_by_name("Terminé")
