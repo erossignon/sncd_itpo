@@ -2,7 +2,7 @@ require 'fileutils'
 require 'benchmark'
 
 
-def f(value)
+def format_float_csv(value)
    decimal_separator = ","
    value.to_s.gsub('.', decimal_separator)
 end
@@ -26,7 +26,14 @@ def update_feature(feat)
 
   # update status on attached user stories
   feat.userstories.each do |us|
-    if us.done_ratio == 100 and !us.closed? then
+
+    # for some reasons reload is necessary .... still dont understand why
+    # otherwise us.closed? returns a wrong value
+
+    us  = UserStory.find(us.id)
+    #puts "#{us.id} #{us.closed?} "
+
+    if (us.done_ratio == 100) and (not us.closed?)  and us.status != $closed_status then
       puts "Closing User story #{us.id} #{us.subject}"
       us.status = $closed_status
       us.save!
@@ -131,7 +138,7 @@ def check5()
    puts "# check5: check feature that do not have any user story but are marked as completed or in progress"
    features2 = Feature.all_by_level(2)
    features2.each do |f|
-       if (f.userstories.count == 0 and f.sub_features.count == 0 )and ( f.done_ratio != 0 or f.status != $nouveau_status ) then
+       if (f.userstories.count == 0 and f.sub_features.count == 0) and ( f.done_ratio != 0 or f.status != $nouveau_status ) then
            puts  "   feature #{f.id} status seems to be wrong, please check"
            puts f
        end
@@ -191,12 +198,11 @@ def print_feature(f)
 end
 
 def extract_stat(features)
-
   sum_estimate          = 0
-  sum_actual_size        = 0
+  sum_actual_size       = 0
   sum_estimate_done     = 0
   features.each do |f|
-    sum_actual_size    += f.actualsize
+    sum_actual_size   += f.actualsize
     sum_estimate      += f.featuresize
     sum_estimate_done += f.featuresize * f.calculated_percent_done / 100.0
   end
@@ -207,10 +213,10 @@ def extract_stat(features)
 end
 def print_feature_collection(features,title)
 
-  currver = ""
+  current_version = nil
   stats = extract_stat(features)
   sum_estimate            = stats[0]
-  sum_actual_size          = stats[1]
+  sum_actual_size         = stats[1]
   sum_estimate_done       = stats[2]
   calculated_percent_done = stats[3]
 
@@ -221,9 +227,13 @@ def print_feature_collection(features,title)
   puts "        percent done                       : #{calculated_percent_done}%"
   puts "------------------------------------------------------"
   features.each do |f|
-    if currver != f.fixed_version.name then
-      currver  = f.fixed_version.name
-      puts " ##########  #{f.fixed_version.name} #{f.fixed_version.effective_date}"
+    if current_version != f.fixed_version then
+      current_version  = f.fixed_version
+      if current_version!= nil then
+          puts " ##########  #{current_version.name} #{current_version.effective_date}"
+      else
+          puts " ##########   Not assigned "
+      end
     end
     print_feature f
   end
@@ -232,8 +242,11 @@ end
 
 def printfeatures()
   update_features
-  features = Feature.all_by_level(2).sort_by do  |f|
-    [ f.fixed_version.effective_date , f.calculated_percent_done , f.spec ]
+
+  features = Feature.all_by_level(2)
+
+  features = features.sort_by do  |f|
+        [  f.sortable_effective_date , f.calculated_percent_done , f.spec ]
   end
 
   feature_done       = []
@@ -247,8 +260,8 @@ def printfeatures()
       feature_done << f
     elsif f.done_ratio != 0 then
       feature_inprogress << f
-    elsif ( f.fixed_version.name =~ /V/ ) == nil then
 
+    elsif f.is_in_scope? then
       if f.userstories.count > 0 then
         feature_inprogress << f
       else
@@ -299,7 +312,7 @@ def dumpcsv()
    puts "redmine;spec;level;feature size;actual size;%done CAl;%done set;subject"
    features.each do |feat|
       # redmine ; id ; niveau
-      puts "#{feat.id};\"#{feat.spec}\";#{feat.level};#{f(feat.featuresize)};"     \
+      puts "#{feat.id};\"#{feat.spec}\";#{feat.level};#{format_float_csv(feat.featuresize)};"     \
            "#{feat.actualsize};#{feat.calculated_percent_done};#{feat.done_ratio};\"#{Redmine::CodesetUtil.from_utf8(shorten(feat.subject,12),encoding)}\";\"#{feat.fixed_version.name}\""
    end
 end
@@ -384,8 +397,8 @@ namespace :dcns do
       puts "date;todo;inprogress;inprogress_done;done;todo_feature_count;inprogress_feature_count;done_feature_count;bonus_feature_count"
       stats = Stat.all(:order => "date ASC")
       stats.each do |s|
-        puts "#{s.date};#{f(s.todo)};#{f(s.inprogress)};#{f(s.inprogress_done)};#{f(s.done)};"\
-             "#{f(s.todo_feature_count)};#{f(s.inprogress_feature_count)};#{f(s.done_feature_count)};#{f(s.bonus_feature_count)}"
+        puts "#{s.date};#{format_float_csv(s.todo)};#{format_float_csv(s.inprogress)};#{format_float_csv(s.inprogress_done)};#{format_float_csv(s.done)};"\
+             "#{format_float_csv(s.todo_feature_count)};#{format_float_csv(s.inprogress_feature_count)};#{format_float_csv(s.done_feature_count)};#{format_float_csv(s.bonus_feature_count)}"
       end
     end
   end

@@ -13,7 +13,7 @@ $closed_status     = IssueStatus.find_by_name("Terminé")
 
      def Feature.all_by_level(level)
          r = []
-         features = f = Issue.find(:all,:conditions => [ "tracker_id = ?",$feature_tracker.id],
+         features = f = Issue.find(:all,:conditions => [ "tracker_id = ?",$feature_tracker.id],   \
                             :include => [ :tracker , :fixed_version,:status ,:relations_from , :relations_to ]); true
          features.each do |issue|
            feature = issue.becomes(Feature)
@@ -53,21 +53,21 @@ $closed_status     = IssueStatus.find_by_name("Terminé")
        r1.each do |r|  
           rel << r.issue_to_id 
        end
-       # certaines features ont pu être associée à l'envers
+       # certaines features ont pu être associées à l'envers
        r2 = IssueRelation.find(:all,:conditions => ["issue_to_id = ? ", f.id])
-       r2.each do |r| 
+       r2.each do |r|
          rel << r.issue_from_id 
        end
        result = []
        rel.each do |r|
-         issue = Issue.find(r)
+         issue = Issue.find(r, :include => [ :tracker , :fixed_version,:status ,:relations_from , :relations_to ] )
          if issue.tracker == $userstory_tracker then
               result << issue.becomes(UserStory)
          end
          if ( issue.tracker == $feature_tracker) then
             result << issue.becomes(Feature)
          end
-       end 
+       end
        result
      end 
 
@@ -86,16 +86,15 @@ $closed_status     = IssueStatus.find_by_name("Terminé")
         assert { res.size() == 1 }
         res[0]
      end
-     # extraire les features de niveau 3 liés à une feature de niveau 2
+     # extraire les features de niveau 3 liées à une feature de niveau 2
      def sub_features()      
         l = self.level
         issues = Feature.extractLinkFeature(self)
         res = []
         issues.each do |issue| 
           if issue.tracker == $feature_tracker then
-             feature = issue.becomes(Feature)
-             if (feature.level == l+1) then
-                res << feature
+             if (issue.level == l+1) then
+                res << issue
              end
           end
         end
@@ -106,14 +105,14 @@ $closed_status     = IssueStatus.find_by_name("Terminé")
         res = []
         issues.each do |issue| 
           if issue.tracker == $userstory_tracker then
-             res << issue.becomes(UserStory)
+             res << issue
           end
         end
         res
       
      end
 
-     # calcul la taille réell estimée par l'équipe de la feature
+     # calcul la taille réelle estimée par l'équipe de la feature
      # en la basant sur la taille des user stories 
      #  
      def actualsize()
@@ -147,6 +146,20 @@ $closed_status     = IssueStatus.find_by_name("Terminé")
        res = 0
        res = sum/weight  if weight > 0
        res.to_i
+     end
+
+     def sortable_effective_date
+      return self.fixed_version.effective_date if self.fixed_version != nil
+      return DateTime.new(2016,1,1)
+     end
+     def is_in_scope?
+       return false if self.fixed_version == nil
+       return false if self.fixed_version.effective_date > DateTime.new(2012,7,1)
+
+        # ne contient pas de V dans le nom du sprint ( type Hors VA+ ou VA+)
+       return true if  (( self.fixed_version.name =~ /V/ ) == nil )
+
+       false
      end
 
      def Feature.update_feature(feat)
