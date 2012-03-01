@@ -307,13 +307,13 @@ def dumpcsv()
 
    features = Feature.all_by_level(2)
    features = features.sort_by {  |f|
-     [   -f.calculated_percent_done ,  f.fixed_version.effective_date, f.spec ]
+     [   -f.calculated_percent_done ,  f.sortable_effective_date, f.spec ]
    }
    puts "redmine;spec;level;feature size;actual size;%done CAl;%done set;subject"
    features.each do |feat|
       # redmine ; id ; niveau
       puts "#{feat.id};\"#{feat.spec}\";#{feat.level};#{format_float_csv(feat.featuresize)};"     \
-           "#{feat.actualsize};#{feat.calculated_percent_done};#{feat.done_ratio};\"#{Redmine::CodesetUtil.from_utf8(shorten(feat.subject,12),encoding)}\";\"#{feat.fixed_version.name}\""
+           "#{feat.actualsize};#{feat.calculated_percent_done};#{feat.done_ratio};\"#{Redmine::CodesetUtil.from_utf8(shorten(feat.subject,12),encoding)}\";\"#{feat.fixed_version_name}\""
    end
 end
 

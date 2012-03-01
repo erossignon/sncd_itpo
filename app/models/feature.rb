@@ -161,7 +161,10 @@ $closed_status     = IssueStatus.find_by_name("Terminé")
 
        false
      end
-
+     def fixed_version_name
+       return "non planifié" if self.fixed_version == nil
+       fixed_version.name
+     end
      def Feature.update_feature(feat)
 
        feat.reload # for some reason, needed
