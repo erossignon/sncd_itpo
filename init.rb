@@ -10,6 +10,7 @@ Redmine::Plugin.register :redmine_dcns_opti do
   
   require_dependency 'issue'
   require_dependency 'tracker'
+  require_dependency 'custom_value'
    
   project_module :dcns_opti do 
      permission :dcns_opti, { :dcns_opti => [:index] }
