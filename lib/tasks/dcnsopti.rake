@@ -65,13 +65,14 @@ def update_feature(feat)
 end
 
 def update_features()
+    project_id = 1
     # update feature level 3
-    features3 = Feature.all_by_level(3)
+    features3 = Feature.all_by_level(3,project_id)
     features3.each do |feat|
       update_feature(feat)
    end
    # now on feature level 2
-   features2 = Feature.all_by_level(2)
+   features2 = Feature.all_by_level(2,project_id)
    features2.each do |feat|
       update_feature(feat)
    end
@@ -79,9 +80,10 @@ end
 
 # test les features niveau 3
 def check1()
+ project_id = 1
  puts "# check 1 : test les features niveau 3 qui n'ont pas de feature parents"
  count = 0
- features3 = Feature.all_by_level(3)
+ features3 = Feature.all_by_level(3,project_id)
  features3.each do |f|
     if f.parent_feature == nil then
        puts "    la feature niveau 3 #{f.id} n'a pas de feature parent #{f.subject}"
@@ -110,8 +112,9 @@ end
 
 
 def check3()
+ project_id= 1
  puts "# check3 : tests les features niveau 3 qui auraient plusieurs features n 2"
- features3 = Feature.all_by_level(3)
+ features3 = Feature.all_by_level(3,project_id)
  features3.each do |f|
     sf = f.sub_features
     if sf.count > 1 then
@@ -136,7 +139,8 @@ end
 
 def check5()
    puts "# check5: check feature that do not have any user story but are marked as completed or in progress"
-   features2 = Feature.all_by_level(2)
+   project_id=1
+   features2 = Feature.all_by_level(2,project_id)
    features2.each do |f|
        if (f.userstories.count == 0 and f.sub_features.count == 0) and ( f.done_ratio != 0 or f.status != $nouveau_status ) then
            puts  "   feature #{f.id} status seems to be wrong, please check"
@@ -243,7 +247,8 @@ end
 def printfeatures()
   update_features
 
-  features = Feature.all_by_level(2)
+  project_id=1
+  features = Feature.all_by_level(2,project_id)
 
   features = features.sort_by do  |f|
         [  f.sortable_effective_date , f.calculated_percent_done , f.spec ]
@@ -304,8 +309,8 @@ def dumpcsv()
   encoding = "ISO-8859-1"
    # export = FCSV.generate(:col_sep => l(:general_csv_separator)) do |csv|
    # end
-
-   features = Feature.all_by_level(2)
+   project_id=1
+   features = Feature.all_by_level(2,project_id)
    features = features.sort_by {  |f|
      [   -f.calculated_percent_done ,  f.sortable_effective_date, f.spec ]
    }
@@ -323,16 +328,23 @@ end
 
 
 def fix_tasks()
+
   task_tracker = Tracker.find_by_name("task").id
-  tasks = Issue.find(:all, :conditions => [ 'tracker_id=?',task_tracker ])
+  project_id   = 1
+
+  tasks = Issue.find(:all, :conditions => [ 'tracker_id=? AND project_id=?',task_tracker ,project_id])
   tasks.each do |task|
     if task.parent_id != nil
       us = task.parent.becomes(UserStory)
+      # test regex in http://rubular.com/
       # extraire le numéro d'exigence du titre
-      us.subject =~ /[^a-z^A-Z ]*/
+      us.subject =~ /((^QC|OTD)\s\d*|^[\w\.]*)/ #/[^a-z^A-Z ]*]/
       exigence = $&
       puts exigence
       if not task.subject.include?(exigence)
+        # remove old stuff
+        task.subject.sub(/((^(QC|OTD)\s\d*|^[\w\.]*)/,"")
+
         task.subject = "#{exigence} #{task.subject}"
         puts " setting task title to #{task.subject }"
         begin
@@ -349,6 +361,8 @@ end
 
 namespace :dcns do
   namespace :opti do
+
+
      desc "Met à jour l'avancement des features niveau 2"
      task :update_features => :environment do |t|
        raise "You must specify the RAILS_ENV ('rake dcns:opti:update_features RAILS_ENV=production' )"  unless ENV["RAILS_ENV"]
