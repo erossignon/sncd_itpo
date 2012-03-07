@@ -11,10 +11,11 @@ $closed_status     = IssueStatus.find_by_name("Terminé")
  class Feature  < Issue
        # extract usefull tracker
 
-     def Feature.all_by_level(level)
+     def Feature.all_by_level(level,product_id)
+         ActiveRecord::Base.logger.warn(" aaaaaaa ")
          r = []
-         features = f = Issue.find(:all,:conditions => [ "tracker_id = ?",$feature_tracker.id],   \
-                            :include => [ :tracker , :fixed_version,:status ,:relations_from , :relations_to ]); true
+         features =Issue.find(:all,:conditions => ["tracker_id = ? AND project_id = ?",$feature_tracker.id,product_id],\
+                            :include => [ :tracker , :fixed_version,:status ,:relations_from , :relations_to ]);
          features.each do |issue|
            feature = issue.becomes(Feature)
            if feature.level == level then

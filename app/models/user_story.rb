@@ -5,8 +5,8 @@ $userstory_tracker = Tracker.find_by_name("user story")
 class UserStory < Issue
   
   def UserStory.all()
-    UserStory.find(:all,:conditions => [ "tracker_id = ?",$userstory_tracker.id])
-  end
+    UserStory.find(:all,:conditions => [ "tracker_id = ? AND project_id = ?",$userstory_tracker.id , @project.id])
+  end                                                                                                           &
 
   def spec
       spec_id = 1
