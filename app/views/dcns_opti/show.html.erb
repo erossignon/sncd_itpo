@@ -25,7 +25,6 @@
   t4 = []
   dates  = []
 
-
   b1 = []
   b2 = []
   b3 = []
@@ -98,7 +97,7 @@
   if ( nb_days_until_project_end > 0) then
       (1..nb_days_until_project_end).each {
             |t|
-             dates << myDate(Date.today+t); p1 << 0 ; p2 << 0 ; p3 << 0 ; p4 << 0 ; t1<<0;t2<<0;t3<<0;t4<<0
+             dates << myDate(Date.today+t); p1 << 0 ; p2 << 0 ; p3 << 0 ; p4 << 0 ; t1<<0;t2<<0;t3<<0;t4<<0;b1<<0;b2<<0;b3<<0;b4<<0
        }
 
   end
@@ -122,7 +121,6 @@
     var t2 = [<%=series(t2)%>];
     var t3 = [<%=series(t3)%>];
     var t4 = [<%=series(t4)%>];
-
 
     var b1 =[<%=series(b1)%>];
     var b2 =[<%=series(b2)%>];
