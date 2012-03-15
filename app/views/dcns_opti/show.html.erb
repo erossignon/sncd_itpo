@@ -3,6 +3,14 @@
 <!-- script type="text/javascript" src="/plugins_assets/redmine_backlogs/javascripts/jquery/jquery.jqplot/plugins/jqplot.categoryAxisRenderer.min.js"></script -->
 
 <%
+
+   def ff(v)
+     if v == nil then
+       0
+     else
+       v.to_i
+     end
+   end
   def myDate(date)
     date.strftime("%d %b").to_s
   end
@@ -17,41 +25,47 @@
   t4 = []
   dates  = []
 
+
+  b1 = []
+  b2 = []
+  b3 = []
+  b4 = []
+  dates2 = []
   # hand made data
 
-  dates << myDate( Date.new(2012,1,16)) ; p1 << 106 ;  p2 << 0 ; p3 << 0 ; p4 << 0 ; t1 << 810 ; t2 << 0 ; t3 << 0 ; t4 << 0
-  dates << myDate( Date.new(2012,1,17)) ; p1 << 106 ;  p2 << 0 ; p3 << 0 ; p4 << 0 ; t1 << 810 ; t2 << 0 ; t3 << 0 ; t4 << 0
-  dates << myDate( Date.new(2012,1,18)) ; p1 << 106 ;  p2 << 0 ; p3 << 0 ; p4 << 0 ; t1 << 810 ; t2 << 0 ; t3 << 0 ; t4 << 0
-  dates << myDate( Date.new(2012,1,19)) ; p1 << 106 ;  p2 << 0 ; p3 << 0 ; p4 << 0 ; t1 << 810 ; t2 << 0 ; t3 << 0 ; t4 << 0
-  dates << myDate( Date.new(2012,1,20)) ; p1 << 106 ;  p2 << 0 ; p3 << 0 ; p4 << 0 ; t1 << 810 ; t2 << 0 ; t3 << 0 ; t4 << 0
+  dates << myDate( Date.new(2012,1,16)) ; p1 << 106 ;  p2 << 0 ; p3 << 0 ; p4 << 0 ; t1 << 810 ; t2 << 0 ; t3 << 0 ; t4 << 0 ; b1 << 0 ; b2 << 0 ; b3 << 0; b4 <<0
+  dates << myDate( Date.new(2012,1,17)) ; p1 << 106 ;  p2 << 0 ; p3 << 0 ; p4 << 0 ; t1 << 810 ; t2 << 0 ; t3 << 0 ; t4 << 0 ; b1 << 0 ; b2 << 0 ; b3 << 0; b4 <<0
+  dates << myDate( Date.new(2012,1,18)) ; p1 << 106 ;  p2 << 0 ; p3 << 0 ; p4 << 0 ; t1 << 810 ; t2 << 0 ; t3 << 0 ; t4 << 0 ; b1 << 0 ; b2 << 0 ; b3 << 0; b4 <<0
+  dates << myDate( Date.new(2012,1,19)) ; p1 << 106 ;  p2 << 0 ; p3 << 0 ; p4 << 0 ; t1 << 810 ; t2 << 0 ; t3 << 0 ; t4 << 0 ; b1 << 0 ; b2 << 0 ; b3 << 0; b4 <<0
+  dates << myDate( Date.new(2012,1,20)) ; p1 << 106 ;  p2 << 0 ; p3 << 0 ; p4 << 0 ; t1 << 810 ; t2 << 0 ; t3 << 0 ; t4 << 0 ; b1 << 0 ; b2 << 0 ; b3 << 0; b4 <<0
   # d << myDate( Date.new(2012,1,21)) ; p1 << 106 ;  p2 << 0 ; p3 << 0 ; p4 << 0 ; t1 << 810 ; t2 << 0 ; t3 << 0 ; t4 << 0
   # d << myDate( Date.new(2012,1,22)) ; p1 << 106 ;  p2 << 0 ; p3 << 0 ; p4 << 0 ; t1 << 810 ; t2 << 0 ; t3 << 0 ; t4 << 0
-  dates << myDate( Date.new(2012,1,23)) ; p1 << 100 ;  p2 << 6 ; p3 << 0 ; p4 << 0 ; t1 << 810 ; t2 << 0 ; t3 << 0 ; t4 << 0
-  dates << myDate( Date.new(2012,1,24)) ; p1 << 100 ;  p2 << 6 ; p3 << 0 ; p4 << 0 ; t1 << 810 ; t2 << 0 ; t3 << 0 ; t4 << 0
-  dates << myDate( Date.new(2012,1,25)) ; p1 << 100 ;  p2 << 6 ; p3 << 0 ; p4 << 0 ; t1 << 810 ; t2 << 0 ; t3 << 0 ; t4 << 0
-  dates << myDate( Date.new(2012,1,26)) ; p1 << 100 ;  p2 << 6 ; p3 << 0 ; p4 << 0 ; t1 << 810 ; t2 << 0 ; t3 << 0 ; t4 << 0
-  dates << myDate( Date.new(2012,1,27)) ; p1 << 100 ;  p2 << 0 ; p3 << 0 ; p4 << 6 ; t1 << 810 ; t2 << 0 ; t3 << 0 ; t4 << 0
+  dates << myDate( Date.new(2012,1,23)) ; p1 << 100 ;  p2 << 6 ; p3 << 0 ; p4 << 0 ; t1 << 810 ; t2 << 0 ; t3 << 0 ; t4 << 0 ; b1 << 0 ; b2 << 0 ; b3 << 0; b4 <<0
+  dates << myDate( Date.new(2012,1,24)) ; p1 << 100 ;  p2 << 6 ; p3 << 0 ; p4 << 0 ; t1 << 810 ; t2 << 0 ; t3 << 0 ; t4 << 0 ; b1 << 0 ; b2 << 0 ; b3 << 0; b4 <<0
+  dates << myDate( Date.new(2012,1,25)) ; p1 << 100 ;  p2 << 6 ; p3 << 0 ; p4 << 0 ; t1 << 810 ; t2 << 0 ; t3 << 0 ; t4 << 0 ; b1 << 0 ; b2 << 0 ; b3 << 0; b4 <<0
+  dates << myDate( Date.new(2012,1,26)) ; p1 << 100 ;  p2 << 6 ; p3 << 0 ; p4 << 0 ; t1 << 810 ; t2 << 0 ; t3 << 0 ; t4 << 0 ; b1 << 0 ; b2 << 0 ; b3 << 0; b4 <<0
+  dates << myDate( Date.new(2012,1,27)) ; p1 << 100 ;  p2 << 0 ; p3 << 0 ; p4 << 6 ; t1 << 810 ; t2 << 0 ; t3 << 0 ; t4 << 0 ; b1 << 0 ; b2 << 0 ; b3 << 0; b4 <<0
   # d << myDate( Date.new(2012,1,28)) ; p1 << 106 ;  p2 << 0 ; p3 << 0 ; p4 << 0 ; t1 << 810 ; t2 << 0 ; t3 << 0 ; t4 << 0
   # d << myDate( Date.new(2012,1,29)) ; p1 << 106 ;  p2 << 0 ; p3 << 0 ; p4 << 0 ; t1 << 810 ; t2 << 0 ; t3 << 0 ; t4 << 0
-  dates << myDate( Date.new(2012,1,30)) ; p1 << 100 ;  p2 << 0 ; p3 << 0 ; p4 << 6 ; t1 << 760 ; t2 << 0 ; t3 << 0 ; t4 << 50
-  dates << myDate( Date.new(2012,1,31)) ; p1 << 100 ;  p2 << 0 ; p3 << 0 ; p4 << 6 ; t1 << 760 ; t2 << 0 ; t3 << 0 ; t4 << 50
-  dates << myDate( Date.new(2012,2, 1)) ; p1 << 100 ;  p2 << 0 ; p3 << 0 ; p4 << 6 ; t1 << 760 ; t2 << 0 ; t3 << 0 ; t4 << 50
-  dates << myDate( Date.new(2012,2, 2)) ; p1 << 100 ;  p2 << 0 ; p3 << 0 ; p4 << 6 ; t1 << 760 ; t2 << 0 ; t3 << 0 ; t4 << 50
-  dates << myDate( Date.new(2012,2, 3)) ; p1 << 100 ;  p2 << 0 ; p3 << 0 ; p4 << 6 ; t1 << 760 ; t2 << 0 ; t3 << 0 ; t4 << 50
+  dates << myDate( Date.new(2012,1,30)) ; p1 << 100 ;  p2 << 0 ; p3 << 0 ; p4 << 6 ; t1 << 760 ; t2 << 0 ; t3 << 0 ; t4 << 50 ; b1 << 0 ; b2 << 0 ; b3 << 0; b4 <<0
+  dates << myDate( Date.new(2012,1,31)) ; p1 << 100 ;  p2 << 0 ; p3 << 0 ; p4 << 6 ; t1 << 760 ; t2 << 0 ; t3 << 0 ; t4 << 50 ; b1 << 0 ; b2 << 0 ; b3 << 0; b4 <<0
+  dates << myDate( Date.new(2012,2, 1)) ; p1 << 100 ;  p2 << 0 ; p3 << 0 ; p4 << 6 ; t1 << 760 ; t2 << 0 ; t3 << 0 ; t4 << 50 ; b1 << 0 ; b2 << 0 ; b3 << 0; b4 <<0
+  dates << myDate( Date.new(2012,2, 2)) ; p1 << 100 ;  p2 << 0 ; p3 << 0 ; p4 << 6 ; t1 << 760 ; t2 << 0 ; t3 << 0 ; t4 << 50 ; b1 << 0 ; b2 << 0 ; b3 << 0; b4 <<0
+  dates << myDate( Date.new(2012,2, 3)) ; p1 << 100 ;  p2 << 0 ; p3 << 0 ; p4 << 6 ; t1 << 760 ; t2 << 0 ; t3 << 0 ; t4 << 50 ; b1 << 0 ; b2 << 0 ; b3 << 0; b4 <<0
   # d << myDate( Date.new(2012,2, 4)) ; p1 << 106 ;  p2 << 0 ; p3 << 0 ; p4 << 0 ; t1 << 810 ; t2 << 0 ; t3 << 0 ; t4 << 0
   # d << myDate( Date.new(2012,2, 5)) ; p1 << 106 ;  p2 << 0 ; p3 << 0 ; p4 << 0 ; t1 << 810 ; t2 << 0 ; t3 << 0 ; t4 << 0
-  dates << myDate( Date.new(2012,2, 6)) ; p1 << 90 ;  p2 << 10 ; p3 << 0 ; p4 << 6 ; t1 << 760 ; t2 << 0 ; t3 << 0 ; t4 << 50
-  dates << myDate( Date.new(2012,2, 7)) ; p1 << 90 ;  p2 << 10 ; p3 << 0 ; p4 << 6 ; t1 << 760 ; t2 << 0 ; t3 << 0 ; t4 << 50
-  dates << myDate( Date.new(2012,2, 8)) ; p1 << 90 ;  p2 << 10 ; p3 << 0 ; p4 << 6 ; t1 << 760 ; t2 << 0 ; t3 << 0 ; t4 << 50
-  dates << myDate( Date.new(2012,2, 9)) ; p1 << 90 ;  p2 << 10 ; p3 << 0 ; p4 << 6 ; t1 << 760 ; t2 << 0 ; t3 << 0 ; t4 << 50
-  dates << myDate( Date.new(2012,2,10)) ; p1 << 90 ;  p2 << 10 ; p3 << 0 ; p4 << 6 ; t1 << 760 ; t2 << 0 ; t3 << 0 ; t4 << 50
+  dates << myDate( Date.new(2012,2, 6)) ; p1 << 90 ;  p2 << 10 ; p3 << 0 ; p4 << 6 ; t1 << 760 ; t2 << 0 ; t3 << 0 ; t4 << 50 ; b1 << 0 ; b2 << 0 ; b3 << 0; b4 <<0
+  dates << myDate( Date.new(2012,2, 7)) ; p1 << 90 ;  p2 << 10 ; p3 << 0 ; p4 << 6 ; t1 << 760 ; t2 << 0 ; t3 << 0 ; t4 << 50 ; b1 << 0 ; b2 << 0 ; b3 << 0; b4 <<0
+  dates << myDate( Date.new(2012,2, 8)) ; p1 << 90 ;  p2 << 10 ; p3 << 0 ; p4 << 6 ; t1 << 760 ; t2 << 0 ; t3 << 0 ; t4 << 50 ; b1 << 0 ; b2 << 0 ; b3 << 0; b4 <<0
+  dates << myDate( Date.new(2012,2, 9)) ; p1 << 90 ;  p2 << 10 ; p3 << 0 ; p4 << 6 ; t1 << 760 ; t2 << 0 ; t3 << 0 ; t4 << 50 ; b1 << 0 ; b2 << 0 ; b3 << 0; b4 <<0
+  dates << myDate( Date.new(2012,2,10)) ; p1 << 90 ;  p2 << 10 ; p3 << 0 ; p4 << 6 ; t1 << 760 ; t2 << 0 ; t3 << 0 ; t4 << 50 ; b1 << 0 ; b2 << 0 ; b3 << 0; b4 <<0
   # d << myDate( Date.new(2012,2,11)) ; p1 << 106 ;  p2 << 0 ; p3 << 0 ; p4 << 0 ; t1 << 810 ; t2 << 0 ; t3 << 0 ; t4 << 0
   # d << myDate( Date.new(2012,2,12)) ; p1 << 106 ;  p2 << 0 ; p3 << 0 ; p4 << 0 ; t1 << 810 ; t2 << 0 ; t3 << 0 ; t4 << 0
-  dates << myDate( Date.new(2012,2,13)) ; p1 << 90 ;  p2 << 4 ; p3 << 0 ; p4 << 12 ; t1 << 760 ; t2 << 0 ; t3 << 0 ; t4 << 50
-  dates << myDate( Date.new(2012,2,14)) ; p1 << 90 ;  p2 << 4 ; p3 << 0 ; p4 << 12 ; t1 << 760 ; t2 << 0 ; t3 << 0 ; t4 << 50
-  dates << myDate( Date.new(2012,2,15)) ; p1 << 90 ;  p2 << 4 ; p3 << 0 ; p4 << 12 ; t1 << 760 ; t2 << 0 ; t3 << 0 ; t4 << 50
-  dates << myDate( Date.new(2012,2,16)) ; p1 << 90 ;  p2 << 4 ; p3 << 0 ; p4 << 12 ; t1 << 760 ; t2 << 0 ; t3 << 0 ; t4 << 50
-  dates << myDate( Date.new(2012,2,17)) ; p1 << 90 ;  p2 << 4 ; p3 << 0 ; p4 << 12 ; t1 << 760 ; t2 << 0 ; t3 << 0 ; t4 << 50
+  dates << myDate( Date.new(2012,2,13)) ; p1 << 90 ;  p2 << 4 ; p3 << 0 ; p4 << 12 ; t1 << 760 ; t2 << 0 ; t3 << 0 ; t4 << 50 ; b1 << 0 ; b2 << 0 ; b3 << 0; b4 <<0
+  dates << myDate( Date.new(2012,2,14)) ; p1 << 90 ;  p2 << 4 ; p3 << 0 ; p4 << 12 ; t1 << 760 ; t2 << 0 ; t3 << 0 ; t4 << 50 ; b1 << 0 ; b2 << 0 ; b3 << 0; b4 <<0
+  dates << myDate( Date.new(2012,2,15)) ; p1 << 90 ;  p2 << 4 ; p3 << 0 ; p4 << 12 ; t1 << 760 ; t2 << 0 ; t3 << 0 ; t4 << 50 ; b1 << 0 ; b2 << 0 ; b3 << 0; b4 <<0
+  dates << myDate( Date.new(2012,2,16)) ; p1 << 90 ;  p2 << 4 ; p3 << 0 ; p4 << 12 ; t1 << 760 ; t2 << 0 ; t3 << 0 ; t4 << 50 ; b1 << 0 ; b2 << 0 ; b3 << 0; b4 <<0
+  dates << myDate( Date.new(2012,2,17)) ; p1 << 90 ;  p2 << 4 ; p3 << 0 ; p4 << 12 ; t1 << 760 ; t2 << 0 ; t3 << 0 ; t4 << 50 ; b1 << 0 ; b2 << 0 ; b3 << 0; b4 <<0
   #d << myDate( Date.new(2012,2,18)) ; p1 << 106 ;  p2 << 0 ; p3 << 0 ; p4 << 0 ; t1 << 810 ; t2 << 0 ; t3 << 0 ; t4 << 0
   #d << myDate( Date.new(2012,2,19)) ; p1 << 106 ;  p2 << 0 ; p3 << 0 ; p4 << 0 ; t1 << 810 ; t2 << 0 ; t3 << 0 ; t4 << 0
 
@@ -72,14 +86,22 @@
         t3 << s.inprogress_done
         t4 << s.done
 
+        b1 << ff(s.open_bug)
+        b2 << ff(s.in_progress_bug)
+        b3 << 0;
+        b4 << ff(s.closed_bug)
         dates  << myDate(s.date)
     end
 
   end
-  (1..100).each {
-        |t|
-         dates << myDate(Date.today+t); p1 << 0 ; p2 << 0 ; p3 << 0 ; p4 << 0 ; t1<<0;t2<<0;t3<<0;t4<<0
-   }
+  nb_days_until_project_end = (Date.new(2012,6,30) - Date.today).to_i
+  if ( nb_days_until_project_end > 0) then
+      (1..nb_days_until_project_end).each {
+            |t|
+             dates << myDate(Date.today+t); p1 << 0 ; p2 << 0 ; p3 << 0 ; p4 << 0 ; t1<<0;t2<<0;t3<<0;t4<<0
+       }
+
+  end
   nn = 5
   dates = (0..dates.size).collect{|i|  (i % nn != 0 ? ' ' : dates[i] + ' ') }
 
@@ -100,6 +122,13 @@
     var t2 = [<%=series(t2)%>];
     var t3 = [<%=series(t3)%>];
     var t4 = [<%=series(t4)%>];
+
+
+    var b1 =[<%=series(b1)%>];
+    var b2 =[<%=series(b2)%>];
+    var b3 =[<%=series(b3)%>];
+    var b4 =[<%=series(b4)%>];
+
     var d  = [<%=dates.map{ |t|"'#{t}'"}.join "," %>];
 
     RB.$(document).ready(function() {
@@ -141,11 +170,17 @@
 
     RB.$.jqplot.CategoryAxisRenderer.angle = -30;
     var plot1 = RB.$.jqplot ('chart1', [p4,p3,p2,p1],optionObj);
+    var plotb = RB.$.jqplot ('chartb', [b4,b3,b2,b1],optionObj);
     var plot2 = RB.$.jqplot ('chart2', [t4,t3,t2,t1],optionObj);
     } );
 
 </script>
 
+Avancement des features ( 1 graduation par feature)
 <div id="chart1" style="height:300px; width:800px;"></div>
 <br>
+Avancement des bugs ( 1 graduation par feature)
+<div id="chartb" style="height:300px; width:800px;"></div>
+<br>
+Avancement des features chargées (Chaque feature réalisée est pesée avec la somme des poids de ses users story en story points, chaque feature non réalisée est pesée avec sa charge initiale)
 <div id="chart2" style="height:300px; width:800px;"></div>

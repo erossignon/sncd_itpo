@@ -29,9 +29,8 @@ def update_feature(feat)
 
     # for some reasons reload is necessary .... still dont understand why
     # otherwise us.closed? returns a wrong value
-
     us  = UserStory.find(us.id)
-    #puts "#{us.id} #{us.closed?} "
+    puts "#{us.id} #{us.closed?} "
 
     if (us.done_ratio == 100) and (not us.closed?)  and us.status != $closed_status then
       puts "Closing User story #{us.id} #{us.subject}"
@@ -43,13 +42,13 @@ def update_feature(feat)
   feat.reload # for some reason, needed
   actual_done = feat.calculated_percent_done
 
-  if actual_done != feat.done_ratio then
+  if actual_done != feat.done_ratio and !feat.closed? then
       puts " Updating feature #{feat.id} #{feat.spec} advancement from #{feat.done_ratio} to #{actual_done}"
       feat.done_ratio = actual_done
       if feat.done_ratio != 100 then
         feat.status= $encours_status
         # beware : An issue assigned to a closed version cannot be reopened
-        feat.fixed_version.status = Version::VERSION_STATUSES[0]
+        # feat.fixed_version.status = Version::VERSION_STATUSES[0]
         feat.fixed_version.save!
       end
       feat.save!
@@ -96,8 +95,9 @@ def check1()
 end
 
 def check2()
+ project_id = 1
 puts "# check2: test les users stories qui n'ont pas de features parentes"
- userstories = UserStory.all
+ userstories = UserStory.all(project_id)
  count =0
  userstories.each do |us|
    if us.parent_feature == nil then
@@ -127,10 +127,11 @@ end
 
 
 def check4()
+  project_id=1
   puts "# check4: trouve les anomalies dans l'avancement des users stories"
-  user_stories = UserStory.all()
+  user_stories = UserStory.all(project_id)
   user_stories.each do |us|
-    if us.done_ratio== 100 and us.closed? then
+    if us.done_ratio== 100 and !us.closed? then
       puts "  completed user story #{us.id} #{us.subject} is not closed "
     end
   end
@@ -243,7 +244,14 @@ def print_feature_collection(features,title)
   end
 
 end
-
+def print_bug_collection(bugs,title)
+  puts "------------------------------------------------------"
+  puts "        #{title}"
+  puts "------------------------------------------------------"
+  bugs.each do |f|
+    puts "      ##{f.id}  #{f.criticity}  #{f.subject} "
+  end
+end
 def printfeatures()
   update_features
 
@@ -297,11 +305,38 @@ def printfeatures()
   s.inprogress_done_feature_count =  feature_inprogress.count
   s.done_feature_count            =  feature_done.count
   s.bonus_feature_count           =  feature_outofscope.count
+
+  # now with bugs
+  s.open_bug                     = 0
+  s.in_progress_bug              = 0
+  s.closed_bug                   = 0
+  open_bug                       = []
+  in_progress_bug                = []
+  closed_bug                     = []
+  bugs = Bug.all(project_id)
+  bugs.each do |f|
+    f = f.becomes(Bug)
+    if f.done_ratio == 100 then
+      s.closed_bug +=1
+      closed_bug << f
+    elsif f.done_ratio != 0 then
+      s.in_progress_bug  +=1
+      in_progress_bug << f
+    else
+      s.open_bug  +=1
+      open_bug << f
+    end
+  end
+
   s.save!
 
-  print_feature_collection(feature_done, "Done")
-  print_feature_collection(feature_inprogress, "In Progress")
-  print_feature_collection(feature_todo, "A Faire")
+
+  print_feature_collection(feature_done, "Features Done")
+  print_feature_collection(feature_inprogress, "Feature In Progress")
+  print_feature_collection(feature_todo, "Feature To Do")
+  print_bug_collection(closed_bug,"Bugs closed")
+  print_bug_collection(in_progress_bug,"Bugs - resolution in progress")
+  print_bug_collection(open_bug,"Bugs to do")
 end
 
 def dumpcsv()
@@ -338,12 +373,12 @@ def fix_tasks()
       us = task.parent.becomes(UserStory)
       # test regex in http://rubular.com/
       # extraire le numéro d'exigence du titre
-      us.subject =~ /((^QC|OTD)\s\d*|^[\w\.]*)/ #/[^a-z^A-Z ]*]/
+      us.subject =~ /(^(QC|OTD)\s\d*|^[\w\.]*)/ #/[^a-z^A-Z ]*]/
       exigence = $&
       puts exigence
       if not task.subject.include?(exigence)
         # remove old stuff
-        task.subject.sub(/((^(QC|OTD)\s\d*|^[\w\.]*)/,"")
+        task.subject.sub(/(^(QC|OTD)\s\d*|^[\w\.]*)/,"")
 
         task.subject = "#{exigence} #{task.subject}"
         puts " setting task title to #{task.subject }"
