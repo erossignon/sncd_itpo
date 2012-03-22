@@ -30,7 +30,7 @@ def update_feature(feat)
     # for some reasons reload is necessary .... still dont understand why
     # otherwise us.closed? returns a wrong value
     us  = UserStory.find(us.id)
-    puts "#{us.id} #{us.closed?} "
+    # puts "#{us.id} #{us.closed?} "
 
     if (us.done_ratio == 100) and (not us.closed?)  and us.status != $closed_status then
       puts "Closing User story #{us.id} #{us.subject}"
